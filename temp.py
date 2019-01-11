@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 playing = 0
 duration = 5
+original_duration = 5
 media_files = []
 condition = threading.Condition()
 
@@ -25,9 +26,10 @@ def play_media():
 
 @app.route('/play', methods=['POST'])
 def play():
-    global duration, media_files, playing
+    global duration, media_files, playing, original_duration
     media = request.json
     duration = media['duration']
+    original_duration = duration
     media_files = media['mediaFiles']
     threading.Thread(name='playMedia', target=play_media).start()
     return 'Played'
@@ -40,6 +42,24 @@ def stop_media():
     with condition:
         condition.notify()
     return 'Stopped'
+
+
+@app.route('/pause')
+def pause_media():
+    global duration
+    duration = 1000000
+    with condition:
+        condition.notify()
+    return 'Paused'
+
+
+@app.route('/continue')
+def continue_media():
+    global duration
+    duration = original_duration
+    with condition:
+        condition.notify()
+    return 'Continued'
 
 
 @app.route('/test')
