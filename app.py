@@ -61,12 +61,12 @@ def play_media():
             if file['type'] == 'photo':
                 global file_type
                 file_type = 'photo'
-                subprocess.Popen("omxiv --blank --duration 300 " + file['path'], shell=True)
+                subprocess.Popen(["omxiv", "--blank", file['path']], shell=False)
             # Start the omxplayer for video
             else:
                 global file_type
                 file_type = 'video'
-                subprocess.Popen("omxplayer -b " + file['path'], shell=True)
+                subprocess.Popen(["omxplayer", "-b", file['path']], shell=False)
                 video_length = get_video_length(file['path'])
             current_index += 1
             with condition:
