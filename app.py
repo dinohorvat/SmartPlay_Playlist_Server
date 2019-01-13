@@ -2,6 +2,7 @@ from flask import Flask, request
 import threading
 import subprocess
 import time
+import sys
 app = Flask(__name__)
 
 playing = 0
@@ -25,6 +26,9 @@ def shift(key, array, next_event):
 
 
 def init_screen():
+    # Terminate processes if they are active
+    subprocess.Popen('pkill -9 omxiv', shell=True)
+    subprocess.Popen('pkill -9 omxplayer', shell=True)
     # Sets the background image in omxiv
     subprocess.Popen('omxiv -b ' + splash_image, shell=True)
 
@@ -32,10 +36,9 @@ def init_screen():
 def get_video_length(filename):
     # Get video duration of a file
     video_duration = subprocess.check_output(
-        ['ffprobe', '-i', filename, '-show_entries', 'format=duration', '-v', 'quiet', '-of', 'csv=%s' % ("p=0")])
+        ['ffprobe', '-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1',
+         filename]).decode(sys.stdout.encoding)
     # The output received is like b'11.06900\n'  -- Therefore the formatting is needed
-    video_duration = video_duration[2:]
-    video_duration = video_duration[:-3]
     print(video_duration)
     return video_duration
 
@@ -63,7 +66,7 @@ def play_media():
             else:
                 global file_type
                 file_type = 'video'
-                subprocess.Popen("omxplayer -o alsa -b " + file['path'], shell=True)
+                subprocess.Popen("omxplayer -b " + file['path'], shell=True)
                 video_length = get_video_length(file['path'])
             current_index += 1
             with condition:
@@ -75,15 +78,16 @@ def play_media():
                 else:
                     condition.wait(timeout=float(video_length))
                 # Kill both processes after the timeout
-                subprocess.Popen('pkill -9 omxiv', shell=True)
-                subprocess.Popen('pkill -9 omxplayer', shell=True)
+                if file_type == 'photo':
+                    subprocess.Popen('pkill -n omxiv', shell=True)
+                else:
+                    subprocess.Popen('pkill -9 omxplayer', shell=True)
                 time.sleep(0.1) # Without this the process might get killed before it finishes
     print('Finished')
 
 
 @app.route('/play', methods=['POST'])
 def play():
-    init_screen()
     global duration, media_files, playing, original_duration, original_media_files
     media = request.json
     duration = media['duration']
