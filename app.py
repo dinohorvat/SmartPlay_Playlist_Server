@@ -145,13 +145,5 @@ def previous_media():
     return 'Prev'
 
 
-@app.route('/test')
-def test():
-    global playing
-    playing = 1
-    threading.Thread(name='playMedia', target=play_media).start()
-    return 'test'
-
-
 if __name__ == '__main__':
     app.run()
