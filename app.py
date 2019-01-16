@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import threading
 import subprocess
 import time
@@ -95,8 +95,9 @@ def play():
     media_files = media['mediaFiles']
     original_media_files = media_files
     threading.Thread(name='playMedia', target=play_media).start()
-    return 'Played'
-
+    return jsonify(
+        success=True
+    )
 
 @app.route('/stop')
 def stop_media():
@@ -104,17 +105,17 @@ def stop_media():
     playing = 0
     with condition:
         condition.notify()
-    return 'Stopped'
-
+    return jsonify(
+        success=True
+    )
 
 @app.route('/pause')
 def pause_media():
     global duration
     duration = 1000000
-    with condition:
-        condition.notify()
-    return 'Paused'
-
+    return jsonify(
+        success=True
+    )
 
 @app.route('/continue')
 def continue_media():
@@ -122,15 +123,17 @@ def continue_media():
     duration = original_duration
     with condition:
         condition.notify()
-    return 'Continued'
-
+    return jsonify(
+        success=True
+    )
 
 @app.route('/next')
 def next_media():
     with condition:
         condition.notify()
-    return 'Next'
-
+    return jsonify(
+        success=True
+    )
 
 @app.route('/previous')
 def previous_media():
@@ -142,7 +145,9 @@ def previous_media():
         current_index = len(original_media_files) - 1
     with condition:
         condition.notify()
-    return 'Prev'
+    return jsonify(
+        success=True
+    )
 
 
 if __name__ == '__main__':
