@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify
+from pyautogui import press
 import threading
 import subprocess
 import time
@@ -6,6 +7,7 @@ import sys
 app = Flask(__name__)
 
 playing = 0
+playingType = ''
 duration = 5
 current_index = 0
 touched = 0
@@ -59,15 +61,17 @@ def play_media():
             file_type = ''
             # Start the omxiv for image
             if file['type'] == 'photo':
-                global file_type
+                global file_type, playingType
                 file_type = 'photo'
                 subprocess.Popen(["omxiv", "--blank", file['path']], shell=False)
+                playingType = 'photo'
             # Start the omxplayer for video
             else:
                 global file_type
                 file_type = 'video'
                 subprocess.Popen(["omxplayer", "-b", file['path']], shell=False)
                 video_length = get_video_length(file['path'])
+                playingType = 'video'
             current_index += 1
             with condition:
                 global file_type
@@ -112,7 +116,10 @@ def stop_media():
 @app.route('/pause')
 def pause_media():
     global duration
-    duration = 1000000
+    if playingType == 'video':
+        press('p')
+    else:
+        duration = 1000000
     return jsonify(
         success=True
     )
@@ -121,8 +128,11 @@ def pause_media():
 def continue_media():
     global duration
     duration = original_duration
-    with condition:
-        condition.notify()
+    if playingType == 'video':
+        press('p')
+    else:
+        with condition:
+            condition.notify()
     return jsonify(
         success=True
     )

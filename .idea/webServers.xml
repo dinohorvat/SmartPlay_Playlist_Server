@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="1c49154a-6ad3-4145-8a11-514e0b66b9fe" name="Py" url="http://192.168.1.132">
-        <fileTransfer host="192.168.1.132" port="22" rootFolder="/home/pi/jp/SmartPlay/PythonServer" accessType="SFTP">
+        <fileTransfer host="192.168.1.132" port="22" rootFolder="/home/pi/jp/SmartPlay_Playlist_Server" accessType="SFTP">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>
