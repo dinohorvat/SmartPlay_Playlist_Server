@@ -69,7 +69,7 @@ def play_media():
             else:
                 global file_type
                 file_type = 'video'
-                subprocess.Popen(["omxplayer", "-b", file['path']], shell=False)
+                subprocess.Popen(["omxplayer", "-o", "alsa" "-b", file['path']], shell=False)
                 video_length = get_video_length(file['path'])
                 playingType = 'video'
             current_index += 1
@@ -92,6 +92,7 @@ def play_media():
 
 @app.route('/play', methods=['POST'])
 def play():
+    stop_media()
     global duration, media_files, playing, original_duration, original_media_files
     media = request.json
     duration = media['duration']
