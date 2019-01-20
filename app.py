@@ -1,5 +1,4 @@
 from flask import Flask, request, jsonify
-from pyautogui import press
 import threading
 import subprocess
 import time
@@ -117,10 +116,7 @@ def stop_media():
 @app.route('/pause')
 def pause_media():
     global duration
-    if playingType == 'video':
-        press('p')
-    else:
-        duration = 1000000
+    duration = 1000000
     return jsonify(
         success=True
     )
@@ -129,10 +125,7 @@ def pause_media():
 def continue_media():
     global duration
     duration = original_duration
-    if playingType == 'video':
-        press('p')
-    else:
-        with condition:
+    with condition:
             condition.notify()
     return jsonify(
         success=True
